@@ -68,10 +68,10 @@ import com.base.TextReport;
 public class Truline
 {
  public static String         title        = "Truline 2014";
- public static String         version      = "Version 1.0 01/15/14";
+ public static String         version      = "Version 1.1 04/26/14";
  public static String         copyright    = "Copyright(c) 2001,2014 Spinning Electrons, LLC";
  public static String         m_handicapVersion = "default";
- public static String         m_trulineVersion  = "1.0.0";
+ public static String         m_trulineVersion  = "1.1.0";
  public static Properties     userProps    = new Properties();
  public static CommaDelimited co           = new CommaDelimited();                            // Correlation
  public static CommaDelimited pc           = new CommaDelimited();                            // track

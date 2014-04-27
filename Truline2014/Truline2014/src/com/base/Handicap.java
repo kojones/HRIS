@@ -14,15 +14,15 @@ package com.base;
  =============================================================================
  */
 /*
- *	The handicaping logic for truline.
+ *      The handicaping logic for truline.
  *
- *	There should be one Handicap Object created for each horse in a race (each post).
+ *      There should be one Handicap Object created for each horse in a race (each post).
  *
  *SOME BACKGROUND INFORMATION:
  *
- *	NOTE: A furlong is 220 yards.  A 1/5th of a second 
- *		  is one horse length.  A variant point is considered
- *		  to be worth 1/5th of a second.
+ *      NOTE: A furlong is 220 yards.  A 1/5th of a second
+ *                is one horse length.  A variant point is considered
+ *                to be worth 1/5th of a second.
  Anecdotally, as mentioned, a horse stretched out is 11-12', and that's
  where a fifth of a second cames from. In the 70's, some Ivy League
  mathematicians began arguing that the correct measurement was from the
@@ -37,7 +37,7 @@ package com.base;
  enough to me. (Plus it is the concept that the Daily Racing Form is
  based on.) This is one place where you can't fight City Hall.
  *
- *	REPRESENTITIVE RACE:
+ *      REPRESENTITIVE RACE:
  In order to evaluate a horses chances of winning a race we must find
  some information about the horse on which to base our evaluation.
  For this we look at a horse's past performance.  Among the horses
@@ -46,7 +46,7 @@ package com.base;
  race's running line and speed ratings to normalize it for variations
  in track and other conditions.
  *
- *	TIME, VELOCITY, AND SPEED:
+ *      TIME, VELOCITY, AND SPEED:
  Basically, we will be talking time and speed rating. The "running line"
  - which is in fractions for the race segments, then final time, is in
  seconds and fractions thereof (fifths of a second as to segments. 6F and
@@ -218,7 +218,7 @@ public class Handicap
  }
  /**
   * Main driver for truline logic
-  * 
+  *
   * This is a static routine. It will create one instance of this class for each
   * horse in the race, each attached to the horse's Post instance.
   */
@@ -394,7 +394,7 @@ public class Handicap
  }
  /**
   * Select representitive race candidates: Consider only if:
-  * 
+  *
   * 1) candidate race date is within 120 days (value 120 taken from the
   * BVmaxdays= in user file) 2) Both todays and candidates race are turf or both
   * are dirt. 3) candidate races's variant (DTV) is +20 or less (value +20 taken
@@ -403,8 +403,8 @@ public class Handicap
   * 6F or 6.5F for 6F or 6.5F 7F for 7F 7.5F for 7.5F 8F or 8.5F for 8F or 8.5F
   * 9F for 9F 9.5F for 9.5F 10F for 10F 11F for 11F 12F for 12F treat this as a
   * 9F and find a rep race among those.
-  * 
-  * 
+  *
+  *
   * 5) Only use Maiden races if the flag "Maiden in Win" = Y (flag from
   * BVuseMaiden=Y in user file) unless todays race is a maiden race. 6) Stakes
   * G1 - the only races that can be rep races are a finish of first, second, or
@@ -413,14 +413,14 @@ public class Handicap
   * and even Maiden Special Weight are not of a G1 quality. Making that jump
   * successfully would be a Cinderella Story. It would be thrilling, but it
   * wouldn't have MY money on it.
-  * 
+  *
   * G2 - A horse must have been first, second or third in a G2 or G3 race (or
   * naturally G1) or other race of $250,000 value or higher.
-  * 
+  *
   * G3 - Must have been first, second, or third in a Graded Stake, or a winner
   * of more than two races in a combination of Allowance and Maiden Special
   * Weight prior races.
-  * 
+  *
   * 7) Position data (lengths) and time data must be available. 8) Do not use
   * race if first two letters of track abbr match with something in 'EX' table
   * (exclude table) in the user file.
@@ -512,6 +512,16 @@ public class Handicap
    p.isRoute = isRoute(p);
    boolean stakesRace = false;
    boolean pHighStakesRace = false;
+   /*
+    * Check the statkes rep race option flag - if not set then old rules apply
+    */
+   if (Truline.userProps.getProperty("RRStakesCheck", "A").equals("N"))
+     pHighStakesRace = true;
+   else if (Truline.userProps.getProperty("RRStakesCheck", "A").equals("T") && race.m_surface.equals("D"))
+    pHighStakesRace = true;
+   else if (Truline.userProps.getProperty("RRStakesCheck", "A").equals("D") && race.m_surface.equals("T"))
+    pHighStakesRace = true;
+
    /*
     * For 2-year olds, accept any otherwise qualifying race as a Candidate if
     * today is Turf
@@ -632,31 +642,31 @@ public class Handicap
   * Basically, the representative race refers to the running line that gives the
   * fractional times and final time of the race. We want to use the horse's best
   * effort.
-  * 
+  *
   * In a separate location as to the horse's information, we are given a speed
   * rating (a value hinged to a historical average for the
   * distance/class/age/sex. And we are given a Daily Track Variant, which is to
   * identify that particular day's track surface characteristics vs what would
   * be described as a "true fast" track.
-  * 
+  *
   * Let me give as an example two races in a horse's history:
-  * 
-  * 
+  *
+  *
   * Oct, 12 6F 22.1 45.1 109:4 91 12 Nov. 18 6F 22.4 45.3 110:4 86 20
-  * 
+  *
   * Based on final time, the first race would seemingly be the best. This is not
   * the case. The Daily Track Variant would alter these two running lines to:
-  * 
+  *
   * Oct. 12 6f 21.7 44.0 107.4 Nov. 18 6f 22.0 43.6 106.6
-  * 
+  *
   * (Note: the DRF figures are in minutes and fifths of a second. Our revised
   * running line is in tenths.) At any rate, the second race was the best race.
   * Similarly, if simply adding speed rating and Daily Track Variant (AS), the
   * second race woule be the best race.
-  * 
+  *
   * The program is also supposed to include in this adjustment factors for
   * changes in Track Class, Purse Class, weight and distance.
-  * 
+  *
   * As a totally separate computation, Recency is a measurement of the horse's
   * best effort in the last 28 days. This is the highest total of speed rating
   * and Daily Track Variant in the last 28 days. When this value is lower that
@@ -910,23 +920,23 @@ public class Handicap
  /**
   * Weight adjustments: The weight difference is weight of todays race minus the
   * weight of the candidate race.
-  * 
+  *
   * For sprints (7.5F and less) if (weight < 119) Add (weight difference / 3) to
   * Variant. else Add (weight difference / 2) to Variant.
-  * 
+  *
   * For routes (8F and up) if (weight < 119) Add (weight difference / 2) to
   * Variant. else Add weight difference to Variant.
-  * 
+  *
   * (Note the weight difference will be negative if todays weight is lighter
   * than the rep race (dropping weight) so when we add the negative number to
   * the Variant it actually subtracts.
-  * 
+  *
   * @param weight
   *         - todays race's weight
   * @param p
   *         - a previous performance for this horse.
   * @return the adjustment to the variance (1/5ths).
-  * 
+  *
   *         When we get to adjustments to be added to the Variant - as related
   *         to Track Class, Purse Class, Weight (and doubtfully distance), all
   *         of these modifiers are in fifths of a second. Using weight as an
@@ -941,11 +951,11 @@ public class Handicap
   *         for each additional two pounds or fraction thereof. If dropping
   *         weight, the same principle, just reverse the polarity - a deduction
   *         rather that an addition to the Variant.
-  * 
+  *
   *         In routes, we +/- 1/5 for every two pounds added up to 119#, and 1/5
   *         for every pound over 119#. Yes, this hinges on thirty-plus years of
   *         watching over 100,000 races.
-  * 
+  *
   *         Example: A horse is DROPPING three pounds - say from 118# to 115#.
   *         This should theoretically let the horse run one-fifth FASTER, so the
   *         adjustment should be -1 instead of +1. Anything suggesting the horse
@@ -994,25 +1004,25 @@ public class Handicap
   * enough distance for an experienced horse to close a lot of ground. Also,
   * many races at this distance are for young (and/or "cheap") horses that don't
   * really know what they are doing.
-  * 
+  *
   * 5.5f - also starts on the main track (not from a "chute"), and involves many
   * of the characteristics of the 5F race. I am increasingly reluctant to use a
   * representative race that is not also a "short sprint". At present, a rep
   * race for 5.5f can be 5f, 6f, or 6.5f.
-  * 
+  *
   * I am inclined to favor TRULINE 2000 to shift gears - if today's race is 5f
   * or 5.5f, the rep race must be 5f or 5.5f. If today's race was at 5.5F, and
   * the rep race is at 5f, we would add six SECONDS to the final time. If
   * today's race was at 5F, and we used a rep race at 5.5F, we would subtract
   * six seconds.
-  * 
+  *
   * (2) MAJOR CLARIFICATION - in a sprint, the first two calls are quarter mile
   * and half mile. In a route, the second and third calls are the half mile and
   * six furlong points. These distances do not change, regardless of the total
   * distance of the race. The amount of a horse's energy that is expended in
   * these calls is the same regardless of the total distance and final time. So
   * these "distance adjustments" are limited to final time only.
-  * 
+  *
   * (3) If the race is at 6f or 6.5F, at present we use any distance that is
   * within one eighth of a mile. I am inclined for a race at 6F to limit to 6f
   * and 6.5f. The race at 7f is within 1/8 mile. But I find 7f to be a problem
@@ -1020,29 +1030,29 @@ public class Handicap
   * many do not know how to rate the horse appropriately. They either give the
   * horse the same cues as for six furlongs, or else they give the cues for 8f -
   * both of which are wrong.
-  * 
+  *
   * To explain, if a horse is to sustain his energy for the entire race, he must
   * "change leads" at specific points. If he led with the same front leg
   * throughout, he would exhaust himself much quicker, always extending the one
   * leg full out and taking the brunt of the surface contact, instead of
   * dividing this between the front legs.
-  * 
+  *
   * IF Michael agreed, then we would deal - 6f vs 6.5f - with a distance
   * adjustment of six and three-fifth seconds (33 fifths). But these final times
   * adjustments would not effect the modified Variant. Variant is limited to the
   * other things that involve the horse's fatigue factor and competitive
   * ability.
-  * 
+  *
   * (4) If today's race is at 7F, I am nervous at using any distance but today's
   * distance. This, again, is a big change from the present program, where we go
   * +/- 1/8 of a mile. THIS, however, is a matter of philosophy, and I would not
   * want to superimpose my reaction arbitrarily. Michael - what do you think?
   * And should we ask other Users for their opinion.
-  * 
+  *
   * (5) If, usually rare occasions, today's race is at 7.5f, punt. Excuse my
   * French, but this is a bastard distance. At most, I would limit to 7F and 8F
   * for the rep race. Would limit to .5 differential.
-  * 
+  *
   * (6) 8f is what is referred to as a "middle distance". Quite a few horses
   * that are sprint-bred can stretch out this far (with the right trainer and
   * conditioning), where rarely can they go farther. Similarly, some route-bred
@@ -1050,20 +1060,20 @@ public class Handicap
   * shorter distances. Unfortunately, in current time, we see more and more
   * races at 8f, carded to accommodate route horses that are injured, and cannot
   * sustain anymore the longer distances.
-  * 
+  *
   * If today's race is at 8f, I would probably support a rep race from 7f (with
   * a thirteen-second change to final time), as well as a rep race at 8.5 (six
   * and three-fifths second difference) and 9F (also thirteen seconds
   * difference).
-  * 
+  *
   * (7) If today's race is at 8.5f, we now use +/- 1/8. I favor a change to +/-
   * 1/16. Michael - remember, you have an overriding vote in all matters. I rely
   * on your judgement immensely.
-  * 
+  *
   * (8) If today's race is at 9F, we can use +/- 1/8, which can involve either a
   * +/- seven seconds (if using 8.5 or 9.5 races) or +/- thirteen seconds (if
   * using 8f or 10f).
-  * 
+  *
   * (9) If today's race is 10f or longer, there is a major problem in that the
   * entire running line changes. The first call is a half mile, the second call
   * is one mile. Basically, the way I think we should deal with this is - if
@@ -1073,7 +1083,7 @@ public class Handicap
   * routes with the same philosophy, ALL horses entered would have few to none
   * rep races to consider because these longer races are few except for Graded
   * Stakes. The present TRULINE has shown that using 9.5f works.
-  * 
+  *
   * Distance Adjustments: If we are only going to compare same-length races then
   * we don't need to do any length adjustments except: Todays Race Rep Race
   * Final Time DRF (seconds) SPEED RATING 5.0F 5.0F 0 0 5.5F -6 0 6.0F -12 +5
@@ -1083,7 +1093,7 @@ public class Handicap
   * 8.3F 0 8.5F -3 8.5F 8.0F +6.6 8.3F +3 8.5F 0 9.0F -6.6 9.0F 8.0F +13 8.5F +7
   * 9.0F 0 9.5F -7 10.0F -13 9.5F 8.5F +13 9.0F +7 9.5F 0 for 10F and up, treat
   * it as a 9.5F race.
-  * 
+  *
   * @return the final time adjustment in seconds. Return 999 if not allowed.
   *         NOTE: adjustment to DRF SPEED RATING is performed in
   *         determineRepRace()
@@ -1346,14 +1356,14 @@ public class Handicap
  /**
   * Search the race class table (truline.rc) and locate the entry with the same
   * race type and the closest purse value, rounding down.
-  * 
+  *
   * @param raceType
   *         - the type of the race.
   * @param purse
   *         - the purse amount.
   * @return race class. private static double getPurseClass(String raceType, int
   *         purse) { int p2; double purseClass = 0;
-  * 
+  *
   *         //Log.print("rc.size()="+Truline.rc.size()+", raceType="+raceType+
   *         " purse="+purse+"\n"); for(Enumeration c = Truline.rc.elements();
   *         c.hasMoreElements();) { Properties prop =
@@ -1372,43 +1382,43 @@ public class Handicap
   * first - and goes "wire to wire". At many tracks and in certain weather and
   * track surface conditions, the first call is an important aspect of
   * prediction.
-  * 
+  *
   * Next of importance is how far he is from the leader. In a sprint race,
   * because the distance they are traveling is limited, it is hard to make up
   * ground. A horse that is within two lengths of the leader is close enough to
   * have a reasonable chance to make up the deficiency and catch the leader.
   * Conversely, if the horse is third by six lengths, that is a lot of ground to
   * make up in the last half mile.
-  * 
+  *
   * A good Thoroughbred at top speed runs at about forty miles per hour. A horse
   * that is six lengths behind would have go of 45 MPH in order to win. Most
   * horses are not capable of that speed.
-  * 
+  *
   * SO, in SPRINTS, we give him ONE POINT if being first, second or third at the
   * First Call. If he is near the leader (within two lengths), we give him a
   * SECOND POINT for proximity to the lead.
-  * 
+  *
   * The next test of the horse in the sprint is his ability to sustain. Think of
   * me in track and field. Fat and seventy, being alert I might be off the
   * blocks with any other runner. But I could not sustain the pace for long. The
   * vast majority of horses that DO start quickly fade between the first and
   * second Call, and are far back at the finish.
-  * 
+  *
   * So if the horse is first, second, or third at the SECOND CALL we give him
   * another POINT. And if he is within two lengths, he gets another POINT for
   * proximity. So, in the most recent race, depending on how he runs, he can
   * earn 0-1-2-3-4 POINTS. The same applies to his second race back, and also to
   * his third race back. This means a perfect score would be 12 - first AND
   * within two lengths at each Call in each of the three races.
-  * 
+  *
   * Oh, yes, if today's race is a dirt sprint, we use the last three dirt sprint
   * races.
-  * 
+  *
   * In the case of a route race, the distance of the race is long enough to
   * allow the horse to make up ground. We are still interested in the horse
   * being alert out of the starting gate, and would prefer him to be towards the
   * front. But the numbers of lengths is less meaningful.
-  * 
+  *
   * So, we give him a point for being first, second, or third at the first Call,
   * and a second point for being first, second, or third at the second Call - a
   * possible two points for his most recent ROUTE race. We do the same for the
@@ -1416,14 +1426,14 @@ public class Handicap
   * points. If the horse is first, second, or third at both Calls in all three
   * races, we give him a point for CONSISTENCY, which means a perfect score is
   * SEVEN.
-  * 
+  *
   * If today's race is a dirt route race, we use the last three dirt routes.
   * Whenever the race is a Turf race, sprint or route, we use only the last
   * three Turf races in the appropriate distance range.
-  * 
+  *
   * If we treat routes in this fashion, we will also be less vulnerable to any
   * variations in BRIS format.
-  * 
+  *
   * @param race
   *         - the race object
   * @param post
@@ -1554,82 +1564,82 @@ public class Handicap
  }
  /**
   * Compute the EQ (Energy Quotient)
-  * 
+  *
   * Races - if he just runs around the track - last or middle of the pack - he
   * gets credit for the number of furlongs in the race - which is usually
   * 6-6.5-7-8-8.5-9-10. In such a race, there is no sign that he was extended -
   * reacting to the jockey's whip and urgings to run fast.
-  * 
+  *
   * BUT, if he runs in front for most of the race, even though he may not win,
   * he has been extended - he has made a muscle-building effort. Similarly, if
   * he started in the rear, and made up ground and passed other horses - even if
   * he missed the win, he was "all out" and this should bring improvement next
   * time.
-  * 
+  *
   * In both of these scenarios, we give him a 60% Bonus. We are going to look at
   * each of his last three efforts. We subtract the date of the third effort
   * back from today's date. That becomes the denominator. The numerator is the
   * number of lengths credit he is given. Below is "regular race" vs "extended
   * effort" credit that we give as the distance (which becomes the numerator).
-  * 
+  *
   * REGULAR EXTENDED
-  * 
+  *
   * 5.0 8.0 5.5 8.8 6.0 9.6 6.5 10.4 7.0 11.2 7.5 12.0 8.0 12.8 8.5 13.6 9.0
   * 14-4 10.0 16.0
-  * 
+  *
   * WORK-OUTS - For most work-outs the horse is credited with the length of
   * distance worked. The exception is when it is the fastest work-out of the day
   * for that distance/ In this case, we give a 40% Bonus. Such as:
-  * 
+  *
   * REGULAR EXTENDED
-  * 
+  *
   * 2.0 2.8 3.0 4.2 4.0 5.6 5.0 7.0 6.0 8.4 7.0 9.8 8.0 11.2
-  * 
-  * 
+  *
+  *
   * Now let me hypothesize. Today's race date is 8/14. The horse was second in a
   * six furlong race on 7/10. He raced mid-pack for 8.5 furlongs on 8/1. On 8/10
   * he worked five furlongs. There is no "bullet" or "cannonball" to indicate
   * the best work-out of the dat.
-  * 
+  *
   * >From 7/10 to 8/14 is 35 days. He gets 9.6 lengths credit for a competitive
   * six furlongs on 7/10. For 8/1, he loafed along, and gets just the distance
   * of the race, 8.5 furlongs. Likewise he gets five lengths credit for a
   * routine work-out on 8/10. These three efforts total 23.1, which we divide by
   * 35. This gives him a .66 for the first leg of three measurements.
-  * 
+  *
   * Now we look at the three efforts in relationship excluding today's date.
   * (Did he have so much exertion that he needed a rest?) So we subtract 7/10
   * from 8/10, 31 days, and again divide into the 23.1 lengths credit. For this
   * he gets .745.
-  * 
+  *
   * Now we look at recency. Subtracting the date of the last effort from today's
   * date, we get 4 days. This is divided into the 5.0 furlongs worked, which
   * gives him a 1.25. Adding the three values, his ENERGY NUMBER is 2.655, which
   * we round up to 2.7.
-  * 
+  *
   * Now let's look at another horse. On 7/1, he closed ten lenths to be second
   * by two at 8.5 furlongs (bonus). On 7/15 he wins at 6f (bonus). On 8/5, he
   * leads to the head of the stretch, and finishes third by a length (bonus).
-  * 
+  *
   * He receives 13.6 plus 9.6 plus 13.6 lengths credit, a total of 36.8. Divided
   * by 44 days, he receives .836. Taking the efforts in themselves, we divide 35
   * days into 36.8 and get 1.05. Then, for recency, we divide nine days into
   * 13.6 lengths and get 1.51. The three values total toan ENERGY NUMBER of
   * 3.396, which we round up to 3.4.
-  * 
-  * 
+  *
+  *
   * For each horse in a race: { Select EQ Races/workouts =============== for the
   * last 3 races or workouts { If this was a real race if within first 3
   * positions or within 2 lengths of leader at finish multiply distance by 1.6
   * If this is a workout set extra flag to workout type (not sure what this
   * does) if the extra flag is set, multiply distance by 1.4 }
-  * 
+  *
   * Compute EQ =========== EqKey1 = average distance per day over the period of
   * the workouts. EqKey2 = average distance per day from first workout to race
   * day. EqKey3 = average distance per day from last workout to race day.
   * EnergyKeyTotal = EqKey1 + EqKey2 + EqKey3; Energy Ranking is based on this
   * number. }
-  * 
+  *
   */
  private double computeEQ(Race race, Post post)
  {
@@ -1772,7 +1782,7 @@ public class Handicap
   * Earnings Computations (EPS) ===================== For each horse in a race:
   * { Earnings Ratio = Total Earnings / Starts; Use the Horse's Lifetime Record:
   * }
-  * 
+  *
   */
  private double computeEPS(Race race, Post post)
  {
@@ -1805,17 +1815,17 @@ public class Handicap
  }
  /*******************************************************
   * Rank Horses by EPS, EN, FS, TT, SS, CS, FT, AS, RE, QP.
-  * 
+  *
   * I think we are about at the point of settting up the computations. The
   * highest EPS # should be #1 ranked. Each next highest number gets the next
   * ranking. EPS would ultimately be a potential 1-16. If a horse has no EPS, it
   * is tied for last.
-  * 
+  *
   * EN also goes from highest number to lowest number in the ranking. Any horse
   * with an EN over 4.6 should have an asterisk (*).
-  * 
+  *
   * FS, TT, SS, FT, and CS - the fastest fraction is #1 ranked, next fastest #2.
-  * 
+  *
   * AS, RE and QP - the highest number is #1, the next highest #2, etc.
   */
  private static void rankHorses(Race race)
@@ -1843,24 +1853,24 @@ public class Handicap
    if (scratch.equals("A")) {
     if (entryA == false) {
      entryA = true;
-     race.m_cnthorses++;    
+     race.m_cnthorses++;
     }
    }
    else if (scratch.equals("B")) {
     if (entryB == false) {
      entryB = true;
-     race.m_cnthorses++;    
+     race.m_cnthorses++;
     }
    }
    else if (scratch.equals("C")) {
     if (entryC == false) {
      entryC = true;
-     race.m_cnthorses++;    
+     race.m_cnthorses++;
     }
    }
    else
-    race.m_cnthorses++;    
-    
+    race.m_cnthorses++;
+
    Boolean noFS = false;
    for (int param = 0; param < names.length; param++) {
     int i;
@@ -1951,13 +1961,13 @@ public class Handicap
   * #1 EPS is given 8 points, #2 - 4 points, #3 1 point, all the others = 0
   * points. #1 EN gets 4 points, #2 - 2 points, #3 - 1 points, all others are 0.
   * If the number is over 4.6, give another 4 points.
-  * 
+  *
   * For FS, TT, SS, CS, FT, AS, and QP - TRULINE gives 4 points for #1, 2 points
   * for #2, 1 point for #3 and 0 to all others. RE gives 8 points to #1, 4
   * points for #2, 1 point for #3, and 0 for the others. Querying may point us
   * to very different impact values. Even common sense and discussion will
   * probably suggest some changes.
-  * 
+  *
   * @param race
   *         - The race being handicapped.
   * @return list of Posts in order by bonus point rankings.
@@ -1966,7 +1976,7 @@ public class Handicap
  {
   if (Log.isDebug(Log.TRACE))
    Log.print("\n  Assign Points in race #" + race.m_raceNo + "\n");
-  
+
   // Load handicap factor points for track, surface and distance
   Properties prop = null;
   String race_surface = race.m_surface;
@@ -1988,7 +1998,7 @@ public class Handicap
     break;
    }
   }
-  
+
   int EPS1, EN1, FS1, TT1, SS1, CS1, FT1, AS1, RE1, QP1, wPts = 0;
   if (cnt == 0) {
     Log.print("   No track-specific handicap values for track, surface and distance "
@@ -2015,7 +2025,7 @@ public class Handicap
    RE1 = Lib.atoi(prop.getProperty("RE"));
    QP1 = Lib.atoi(prop.getProperty("QP"));
   }
-  
+
   // Check each horse in the race.
   for (Enumeration e = race.m_posts.elements(); e.hasMoreElements();) {
    Post post = (Post) e.nextElement();
@@ -2037,7 +2047,7 @@ public class Handicap
     // Set Track-Specific Trainer/Jockey Percentages
     if (Truline.userProps.getProperty("TL2014", "No").equals("Yes")) {
      String trnJkyPct = setTrainerJockeyPercents(race, post);
-     post.m_trnJkyPct = trnJkyPct; 
+     post.m_trnJkyPct = trnJkyPct;
     }
 
   // }
@@ -2057,9 +2067,9 @@ public class Handicap
   //       + post.m_horseName + " " + trainerPointsStr
   //       + " points for power trainer\n");
   //   }
-  //  }    
+  //  }
   // }
-   
+
    for (int i = 0; i < names.length; i++) {
     if (i == EPS) {
      if (post.m_handicap.rank[i] == 1) {
@@ -2262,19 +2272,19 @@ public class Handicap
  }
  /*******************************
   * Assign Bonus Points:
-  * 
+  *
   * Right now, there is a Correlation Table with I think 8 Corelations. Each one
   * is getting 4 points. These are EPS1/EN1, EPS1/CS1, EPS1/AS1/RE1, EPS! and
   * any three other #1 rankings, and EPS1/QP1. Also CS1 and any three other #1
   * rankings, RE1 and any three other #1 rankings, and "any six #1 rankings".
-  * 
+  *
   * If we ever get to quesrying, there are 1025 permutations to check.
-  * 
+  *
   * Once all points are assigned, they are totalled for each horse. The final
   * ranking of the horses gives #1 to the horse with most points, #2 to the next
   * highest total, etc. Disregard the morning line that is presently generated.
   * This will be changed.
-  * 
+  *
   * @param race
   *         - The race being handicapped.
   * @return list of Posts in order by bonus point rankings.
@@ -2389,7 +2399,7 @@ public class Handicap
         + post.m_horseName + "  " + pnts + " points for " + corr + "\n");
     }
    }
-  
+
    // Create Bonus Ranks
    int i;
    boolean found = false;
@@ -2658,7 +2668,7 @@ public class Handicap
    }
   }
   /*
-   * No power trainers for this surface / distance if (cnt == 0) 
+   * No power trainers for this surface / distance if (cnt == 0)
    */
    if (points == 0){
     if (Log.isDebug(Log.TRACE))
@@ -2853,7 +2863,7 @@ public class Handicap
       post_trnJkyPct = "TJ"+prop.getProperty("TR");
       break;
     }
-   break;    
+   break;
    }
   }
 
@@ -2886,7 +2896,7 @@ public class Handicap
   }
   if (!foundJky)
    post_trnJkyPct = post_trnJkyPct+"/0";
-    
+
   return post_trnJkyPct;
  }
  /**
